@@ -84,5 +84,18 @@ def explain_predection(file):
 
     return reasons
 
+def is_valid_code_file(file_name):
+    valid_extension = (".py" , ".js" , ".ts" , ".java" , ".cpp" , ".c")
 
+    ignore_files = [
+        "package.json" , 
+        "package.lock.json",
+        "README.md", 
+        ".gitignore",
+        "bun.lockb"
+    ]
 
+    if file_name in ignore_files:
+        return False
+    
+    return file_name.endswith(valid_extension   )

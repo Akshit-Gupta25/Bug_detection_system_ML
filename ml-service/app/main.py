@@ -1,7 +1,7 @@
 from fastapi import FastAPI 
 from app.data_collector import get_repo_data
 from app.feature_engineering import generate_features
-from app.model import train_model , predict_bug_risk
+from app.model import train_model , predict_bug_risk , is_valid_code_file
 app = FastAPI()
 
 @app.get("/")
@@ -13,6 +13,14 @@ def home():
 def analyze_repo(repo_url: str):
     raw_data = get_repo_data(repo_url, max_commits=20)
     features = generate_features(raw_data)
+    features = [f for f in features if is_valid_code_file(f["file_name"])]
+
+    if not features:
+       return {
+          "total_files" : 0, 
+          "predections" : [],
+          "message" : "No valid code files found"
+       }
 
     model = train_model(features)
     predictions = predict_bug_risk(model , features)
