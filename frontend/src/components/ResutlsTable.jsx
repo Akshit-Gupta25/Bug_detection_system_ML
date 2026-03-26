@@ -1,0 +1,71 @@
+const ResultsTable = ({ data, onRowClick , selectedFile }) => {
+  return (
+    <table className="w-full border-collapse bg-white rounded-xl overflow-hidden shadow-md">
+      <thead>
+        <tr className="bg-gray-100 text-left">
+          <th className="p-3">File</th>
+          <th className="p-3">Risk</th>
+          <th className="p-3">Probability</th>
+          <th className="p-3">Churn</th>
+          <th className="p-3">Issues</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {data.map((file, index) => (
+          <tr
+            key={index}
+            onClick={() => onRowClick(file)}
+            className={`cursor-pointer transition 
+                           hover:bg-gray-100 
+                            ${selectedFile?.file_name === file.file_name ? "bg-blue-50" : ""}
+                     `}
+          >
+            <td className="p-3 flex item-center gap-2"> 📄 <span>{file.file_name}</span></td>
+
+            <td className="p-3">
+              <span className={`px-2 py-1 rounded text-white text-sm ${
+                file.risk_level ===   "HIGH"
+                  ? "bg-red-400 text-red-600"
+                  : file.risk_level === "MEDIUM"
+                  ? "bg-yellow-300 text-yellow-600"
+                  : "bg-green-400  text-green-600"
+              }`}>
+                {file.risk_level}
+              </span>
+            </td>
+
+           <td className="p-3">
+                <span className={`font-semibold ${
+                      file.bug_probability >= 0.7
+                        ? "text-red-500"
+                        : file.bug_probability >= 0.3
+                        ? "text-yellow-500"
+                        : "text-green-500"
+                    }`}>
+                      {(Number(file.bug_probability) * 100).toFixed(0)}%
+                </span>
+              </td>
+
+
+            <td className="p-3">{file.total_churn}</td>
+            
+            <td className="p-3">
+                  {file.code_issues?.length > 0 ? (
+                  <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-xs">
+                        {file.code_issues.length} issues
+                  </span>
+                  ) : (
+                  <span className="text-green-600 text-xs">Clean</span>
+               )}
+            </td>
+
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    
+  );
+};
+
+export default ResultsTable;
