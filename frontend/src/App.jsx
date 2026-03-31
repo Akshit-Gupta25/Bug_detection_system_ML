@@ -4,6 +4,8 @@ import RepoInput from './components/RepoInput';
 import ResultsTable from './components/ResutlsTable';
 import { analyzeeRepo } from './api';
 import RiskChart from './components/RiskChart';
+import CodeViewer from './components/CodeViewer';
+
 
 function App() {
   const [results, setResults] = useState([]);
@@ -160,8 +162,20 @@ function App() {
         <p className="text-gray-500 text-sm">Stability</p>
         <p className="font-bold text-lg text-blue-500">
           {selectedFile.stability_score}
+
         </p>
+        </div >
+        {/* 🔥 CODE PREVIEW */}
+      <div className="mt-6">
+        <h3 className="font-semibold mb-2">💻 Code Preview</h3>
+
+        {selectedFile.source_code ? (
+        <CodeViewer code={selectedFile.source_code}  />
+          ) : (
+        <p className="text-gray-500">No code available</p>
+        )}
       </div>
+
     </div>
 
     {/* 🔥 CODE ISSUES SECTION */}
@@ -183,7 +197,25 @@ function App() {
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg">
           ✅ No major code issues detected
         </div>
+        
       )}
+      <h3 className="font-semibold mt-3 py-2">🛠 Fix Suggestions</h3>
+
+        {selectedFile.fix_suggestions && selectedFile.fix_suggestions.length > 0 ? (
+                  <ul className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg space-y-2">
+                        {selectedFile.fix_suggestions.map((fix, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span>💡</span>
+                            <span>{fix}</span>
+                          </li>
+                ))}
+              </ul>
+
+        ) : (
+          <p className="text-gray-400">No suggestions available</p>
+        )}
+
+
     </div>
 
   </div>

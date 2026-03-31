@@ -19,7 +19,7 @@ def home():
 
 @app.get("/analyze")
 def analyze_repo(repo_url: str):
-    raw_data = get_repo_data(repo_url, max_commits=10)
+    raw_data = get_repo_data(repo_url, max_commits=3)
     features = generate_features(raw_data)
     features = [f for f in features if is_valid_code_file(f["file_name"])]
 

@@ -52,12 +52,13 @@ const ResultsTable = ({ data, onRowClick , selectedFile }) => {
             
             <td className="p-3">
                   {file.code_issues?.length > 0 ? (
-                  <span className="bg-red-100 text-red-600 px-2 py-1 rounded text-xs">
-                        {file.code_issues.length} issues
-                  </span>
-                  ) : (
-                  <span className="text-green-600 text-xs">Clean</span>
-               )}
+                        <span className="bg-red-100 px-2 py-1 rounded text-red-500">{file.code_issues.length} issues</span>
+                      ) : file.bug_probability > 0.5 ? (
+                        <span className="bg-yellow-100 px-4.5 py-1 rounded text-yellow-500">Risky</span>
+                      ) : (
+                        <span className="bg-green-100 px-3.5 py-1 rounded text-green-500">Clean</span>
+                      )}
+
             </td>
 
           </tr>

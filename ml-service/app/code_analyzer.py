@@ -3,7 +3,8 @@ import re
 def analyze_code_content(file_content):
     issues = []
 
-    if not file_content:
+    # ✅ ADD THIS LINE
+    if not isinstance(file_content, str):
         return issues
 
     # 🔴 Debug logs
