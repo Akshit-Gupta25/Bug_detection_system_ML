@@ -1,4 +1,5 @@
 from collections import defaultdict
+import os  # ✅ ADD THIS
 
 def generate_features(data):
     file_metrics = defaultdict(lambda: {
@@ -11,7 +12,8 @@ def generate_features(data):
     })
 
     for entry in data:
-        file = entry["file_name"]
+        # 🔥 NORMALIZE FILE PATH
+        file = os.path.normpath(entry["file_name"]).replace("\\", "/")
 
         file_metrics[file]["file_name"] = file
         file_metrics[file]["change_count"] += 1
@@ -43,7 +45,6 @@ def generate_features(data):
             "stability_score": 1 / (change_count + 1),
             "total_churn": total_lines_added + total_lines_deleted,
 
-            # ✅ FIXED
             "source_code": metrics["source_code"]
         })
 

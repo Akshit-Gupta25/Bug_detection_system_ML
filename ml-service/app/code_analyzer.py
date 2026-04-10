@@ -3,49 +3,53 @@ import re
 def analyze_code_content(file_content):
     issues = []
 
-    # ✅ ADD THIS LINE
     if not isinstance(file_content, str):
         return issues
 
+    def add_issue(message, severity):
+        issues.append({
+            "message": message,
+            "severity": severity
+        })
+
+    # 🔴 Critical
+    if re.search(r"(API_KEY|SECRET|TOKEN)\s*=\s*['\"]", file_content):
+        add_issue("Possible hardcoded secret detected", "CRITICAL")
+
     # 🔴 Debug logs
     if re.search(r"console\.log|print\(", file_content):
-        issues.append("Debug logs found (remove before production)")
+        add_issue("Debug logs found (remove before production)", "WARNING")
 
     # 🔴 Loose equality
     if re.search(r"[^=!]==[^=]", file_content):
-        issues.append("Use strict equality (=== instead of ==)")
+        add_issue("Use strict equality (=== instead of ==)", "WARNING")
 
     # 🔴 var usage
     if re.search(r"\bvar\b", file_content):
-        issues.append("Avoid using 'var', use let/const")
+        add_issue("Avoid using 'var', use let/const", "INFO")
 
     # 🔴 TODO / FIXME
     if re.search(r"TODO|FIXME", file_content):
-        issues.append("Unresolved TODO/FIXME in code")
+        add_issue("Unresolved TODO/FIXME in code", "WARNING")
 
     # 🔴 Large file
     if len(file_content) > 2000:
-        issues.append("File is too large, consider splitting")
+        add_issue("File is too large, consider splitting", "INFO")
 
     # 🔴 Missing error handling
-    if "try" not in file_content and "catch" not in file_content:
-        issues.append("No error handling detected (try/catch missing)")
+    if not re.search(r"\btry\b", file_content) and not re.search(r"\b(catch|except)\b", file_content):
+        add_issue("No error handling detected (try/catch missing)", "CRITICAL")
 
     # 🔴 Async without error handling
     if "async" in file_content and "try" not in file_content:
-        issues.append("Async function without proper error handling")
+        add_issue("Async function without proper error handling", "WARNING")
 
     # 🔴 Too many exports
     if file_content.count("export") > 10:
-        issues.append("Too many exports in a single file")
+        add_issue("Too many exports in a single file", "INFO")
 
-    # 🔴 Possible hardcoded secrets
-    if re.search(r"(API_KEY|SECRET|TOKEN)\s*=\s*['\"]", file_content):
-        issues.append("Possible hardcoded secret detected")
-
-    # 🔴 Long functions (basic heuristic)
+    # 🔴 Complex functions
     if file_content.count("{") > 50:
-        issues.append("File contains large/complex functions")
-    
+        add_issue("File contains large/complex functions", "INFO")
 
     return issues

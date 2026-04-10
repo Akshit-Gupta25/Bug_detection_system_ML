@@ -6,7 +6,6 @@ import { analyzeeRepo } from './api';
 import RiskChart from './components/RiskChart';
 import CodeViewer from './components/CodeViewer';
 
-
 function App() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -16,9 +15,12 @@ function App() {
     setLoading(true);
     try {
       const data = await analyzeeRepo(repoUrl);
-      setResults(data.predictions);
+      const predictions = data.predictions || [];
+      setResults(predictions);
+      setSelectedFile(predictions.length > 0 ? predictions[0] : null);
     } catch (error) {
       console.error("Error:", error);
+      setSelectedFile(null);
     }
     setLoading(false);
   };
@@ -71,9 +73,8 @@ function App() {
                   <div className="text-right">
                     <p className="text-red-500 text-2xl font-bold">
                       {results[0]?.bug_probability != null
-  ? `${(Number(results[0].bug_probability) * 100).toFixed(0)}%`
-  : "N/A"}
-
+                        ? `${(Number(results[0].bug_probability) * 100).toFixed(0)}%`
+                        : "N/A"}
                     </p>
                     <p className="text-sm text-gray-500">Risk Score</p>
                   </div>
@@ -121,107 +122,120 @@ function App() {
         {/* Table */}
         {results.length > 0 && (
           <div className="animate-fade-in">
-            <ResultsTable data={results}
-            onRowClick = {setSelectedFile} 
-            selectedFile = {selectedFile}/>
+            <ResultsTable 
+              data={results}
+              onRowClick={setSelectedFile} 
+              selectedFile={selectedFile}
+            />
           </div>
         )}
-      {selectedFile && (
-  <div className="bg-white p-6 rounded-2xl shadow-lg mt-6 border border-gray-200">
 
-    <div className="flex justify-between items-center mb-4">
-      <h2 className="text-xl font-semibold">📄 File Details</h2>
+        {/* FILE DETAILS */}
+        {selectedFile && (
+          <div className="bg-white p-6 rounded-2xl shadow-lg mt-6 border border-gray-200">
 
-      <span className={`px-3 py-1 rounded-full text-sm font-semibold
-        ${selectedFile.risk_level === "HIGH" ? "bg-red-100 text-red-600" :
-          selectedFile.risk_level === "MEDIUM" ? "bg-yellow-100 text-yellow-600" :
-          "bg-green-100 text-green-600"}
-      `}>
-        {selectedFile.risk_level}
-      </span>
-    </div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">📄 File Details</h2>
 
-    {/* File Name */}
-    <p className="text-lg font-bold mb-4">{selectedFile.file_name}</p>
-
-    {/* Metrics */}
-    <div className="grid grid-cols-3 gap-4 mb-6">
-      <div className="bg-gray-50 p-3 rounded-lg text-center">
-        <p className="text-gray-500 text-sm">Bug Probability</p>
-        <p className="font-bold text-lg text-red-500">
-          {(selectedFile.bug_probability * 100).toFixed(0)}%
-        </p>
-      </div>
-
-      <div className="bg-gray-50 p-3 rounded-lg text-center">
-        <p className="text-gray-500 text-sm">Churn</p>
-        <p className="font-bold text-lg">{selectedFile.total_churn}</p>
-      </div>
-
-      <div className="bg-gray-50 p-3 rounded-lg text-center">
-        <p className="text-gray-500 text-sm">Stability</p>
-        <p className="font-bold text-lg text-blue-500">
-          {selectedFile.stability_score}
-
-        </p>
-        </div >
-        {/* 🔥 CODE PREVIEW */}
-      <div className="mt-6">
-        <h3 className="font-semibold mb-2">💻 Code Preview</h3>
-
-        {selectedFile.source_code ? (
-        <CodeViewer code={selectedFile.source_code}  />
-          ) : (
-        <p className="text-gray-500">No code available</p>
-        )}
-      </div>
-
-    </div>
-
-    {/* 🔥 CODE ISSUES SECTION */}
-    <div>
-      <h3 className="font-semibold mb-2">🚨 Code Issues Detected</h3>
-
-      {selectedFile.code_issues?.length > 0 ? (
-        <div className="space-y-2">
-          {selectedFile.code_issues.map((issue, i) => (
-            <div
-              key={i}
-              className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg flex items-center gap-2"
-            >
-              ⚠️ {issue}
+              <span className={`px-3 py-1 rounded-full text-sm font-semibold
+                ${selectedFile.risk_level === "HIGH" ? "bg-red-100 text-red-600" :
+                  selectedFile.risk_level === "MEDIUM" ? "bg-yellow-100 text-yellow-600" :
+                  "bg-green-100 text-green-600"}
+              `}>
+                {selectedFile.risk_level}
+              </span>
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg">
-          ✅ No major code issues detected
-        </div>
-        
-      )}
-      <h3 className="font-semibold mt-3 py-2">🛠 Fix Suggestions</h3>
 
-        {selectedFile.fix_suggestions && selectedFile.fix_suggestions.length > 0 ? (
-                  <ul className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg space-y-2">
-                        {selectedFile.fix_suggestions.map((fix, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <span>💡</span>
-                            <span>{fix}</span>
-                          </li>
-                ))}
-              </ul>
+            {/* File Name */}
+            <p className="text-lg font-bold mb-4">{selectedFile.file_name}</p>
 
-        ) : (
-          <p className="text-gray-400">No suggestions available</p>
+            {/* Metrics */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="bg-gray-50 p-3 rounded-lg text-center">
+                <p className="text-gray-500 text-sm">Bug Probability</p>
+                <p className="font-bold text-lg text-red-500">
+                  {(selectedFile.bug_probability * 100).toFixed(0)}%
+                </p>
+              </div>
+
+              <div className="bg-gray-50 p-3 rounded-lg text-center">
+                <p className="text-gray-500 text-sm">Churn</p>
+                <p className="font-bold text-lg">{selectedFile.total_churn}</p>
+              </div>
+
+              <div className="bg-gray-50 p-3 rounded-lg text-center">
+                <p className="text-gray-500 text-sm">Stability</p>
+                <p className="font-bold text-lg text-blue-500">
+                  {selectedFile.stability_score}
+                </p>
+              </div>
+            </div>
+
+            {/* CODE PREVIEW */}
+            <div className="mt-6">
+              <h3 className="font-semibold mb-2">💻 Code Preview</h3>
+
+              {selectedFile.source_code ? (
+                <CodeViewer code={selectedFile.source_code} />
+              ) : (
+                <p className="text-gray-500">No code available</p>
+              )}
+            </div>
+
+            {/* CODE ISSUES */}
+            <div className="mt-6">
+              <h3 className="font-semibold mb-2">🚨 Code Issues Detected</h3>
+
+              {selectedFile.code_issues?.length > 0 ? (
+                <div className="space-y-2">
+                  {selectedFile.code_issues.map((issue, i) => (
+                    <div
+                      key={i}
+                      className="border px-4 py-2 rounded-lg flex flex-col gap-1 bg-red-50 border-red-200 text-red-700"
+                    >
+                      <div className="flex items-center gap-2">
+                        ⚠️ <span className="font-medium">{issue.message}</span>
+                      </div>
+
+                      <span className={`text-xs font-semibold px-2 py-1 rounded w-fit
+                        ${issue.severity === "CRITICAL"
+                          ? "bg-red-200 text-red-800"
+                          : issue.severity === "WARNING"
+                          ? "bg-yellow-200 text-yellow-800"
+                          : "bg-blue-200 text-blue-800"}
+                      `}>
+                        {issue.severity}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg">
+                  ✅ No major code issues detected
+                </div>
+              )}
+            </div>
+
+            {/* FIX SUGGESTIONS */}
+            <div className="mt-4">
+              <h3 className="font-semibold mb-2">🛠 Fix Suggestions</h3>
+
+              {selectedFile.fix_suggestions?.length > 0 ? (
+                <ul className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg space-y-2">
+                  {selectedFile.fix_suggestions.map((fix, i) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span>💡</span>
+                      <span>{fix}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-400">No suggestions available</p>
+              )}
+            </div>
+
+          </div>
         )}
-
-
-    </div>
-
-  </div>
-)}
-
-
 
       </div>
     </div>
