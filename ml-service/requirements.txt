@@ -5,3 +5,28 @@ numpy
 scikit-learn
 pydriller
 python-dotenv
+
+# BugHunter ML Backend Requirements
+
+# Core FastAPI
+fastapi==0.109.0
+uvicorn==0.27.0
+python-multipart==0.0.6
+pydantic==2.5.3
+
+# ML Stack
+scikit-learn==1.4.0
+pandas==2.2.0
+numpy==1.26.3
+
+# Git Mining
+pydriller==2.5
+
+# Web Scraping / URL Analysis
+requests==2.31.0
+beautifulsoup4==4.12.3
+
+# Auth
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-dotenv==1.0.0

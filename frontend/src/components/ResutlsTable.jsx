@@ -8,6 +8,8 @@ const ResultsTable = ({ data, onRowClick, selectedFile }) => {
           <th className="p-3">Probability</th>
           <th className="p-3">Churn</th>
           <th className="p-3">Issues</th>
+          <th className="p-3">Priority</th>
+
         </tr>
       </thead>
 
@@ -73,6 +75,10 @@ const ResultsTable = ({ data, onRowClick, selectedFile }) => {
                   </span>
                 )}
               </td>
+              <td className="p-3 text-purple-600 font-bold">
+                  {file.priority_score?.toFixed(2)}
+              </td>
+
             </tr>
           );
         })}
